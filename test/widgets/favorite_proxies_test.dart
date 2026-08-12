@@ -18,11 +18,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _favorite = FavoriteProxy(groupName: 'GLOBAL', proxyName: 'HK');
+const _favorites = [
+  _favorite,
+  FavoriteProxy(groupName: 'GLOBAL', proxyName: 'JP'),
+  FavoriteProxy(groupName: 'GLOBAL', proxyName: 'US'),
+  FavoriteProxy(
+    groupName: 'GLOBAL',
+    proxyName: 'A very long favorite proxy name that needs two lines',
+  ),
+];
 const _group = Group(
   name: 'GLOBAL',
   type: GroupType.Selector,
   testUrl: 'https://example.com',
-  all: [Proxy(name: 'HK', type: 'ss')],
+  all: [
+    Proxy(name: 'HK', type: 'ss'),
+    Proxy(name: 'JP', type: 'ss'),
+    Proxy(name: 'US', type: 'ss'),
+    Proxy(
+      name: 'A very long favorite proxy name that needs two lines',
+      type: 'ss',
+    ),
+  ],
 );
 
 void main() {
@@ -54,6 +71,7 @@ void main() {
     await tester.pumpWidget(_buildApp(profile));
     await tester.pump();
 
+    final loadingHeight = tester.getSize(find.byType(FavoriteProxies)).height;
     expect(find.byType(CommonCircleLoading), findsOneWidget);
     expect(
       find.text('Star proxies on the Proxies page to show them here.'),
@@ -65,6 +83,7 @@ void main() {
 
     expect(find.byType(CommonCircleLoading), findsNothing);
     expect(_findEmojiText('HK'), findsOneWidget);
+    expect(tester.getSize(find.byType(FavoriteProxies)).height, loadingHeight);
   });
 
   testWidgets('shows empty state after initialization with invalid favorites', (
@@ -85,32 +104,56 @@ void main() {
     );
   });
 
-  testWidgets('renders favorites with two and four responsive columns', (
+  testWidgets('distributes one to four favorites evenly across one row', (
     tester,
   ) async {
+    await tester.binding.setSurfaceSize(const Size(400, 800));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    double? rowHeight;
+    for (int count = 1; count <= maxFavoriteProxies; count++) {
+      final profile = Profile(
+        id: count,
+        autoUpdateDuration: defaultUpdateDuration,
+        favoriteProxies: _favorites.take(count).toList(),
+      );
+      await tester.pumpWidget(
+        KeyedSubtree(
+          key: ValueKey(count),
+          child: _buildApp(profile, groups: const [_group]),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final cards = find.byType(FilledButton);
+      expect(cards, findsNWidgets(count));
+      final cardWidth = tester.getSize(cards.first).width;
+      for (int index = 1; index < count; index++) {
+        expect(tester.getSize(cards.at(index)).width, cardWidth);
+      }
+      final currentHeight = tester.getSize(find.byType(FavoriteProxies)).height;
+      rowHeight ??= currentHeight;
+      expect(currentHeight, rowHeight);
+    }
+  });
+
+  testWidgets('shows only centered two-line proxy names', (tester) async {
     const profile = Profile(
       id: 1,
       autoUpdateDuration: defaultUpdateDuration,
-      favoriteProxies: [_favorite],
+      favoriteProxies: _favorites,
     );
-    await tester.binding.setSurfaceSize(const Size(400, 800));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(_buildApp(profile, groups: const [_group]));
     await tester.pumpAndSettle();
 
-    expect(globalState.container.read(currentProfileProvider), profile);
-    expect(globalState.container.read(groupsProvider), const [_group]);
-    expect(globalState.container.read(favoriteProxiesProvider), const [
-      _favorite,
-    ]);
-    expect(tester.widget<Grid>(find.byType(Grid)).crossAxisCount, 2);
-    expect(find.text('GLOBAL'), findsOneWidget);
-    expect(_findEmojiText('HK'), findsOneWidget);
-
-    await tester.binding.setSurfaceSize(const Size(800, 800));
-    await tester.pumpAndSettle();
-
-    expect(tester.widget<Grid>(find.byType(Grid)).crossAxisCount, 4);
+    final longName = tester.widget<EmojiText>(
+      _findEmojiText('A very long favorite proxy name that needs two lines'),
+    );
+    expect(longName.maxLines, 2);
+    expect(longName.overflow, TextOverflow.ellipsis);
+    expect(longName.textAlign, TextAlign.center);
+    expect(find.text('GLOBAL'), findsNothing);
+    expect(find.byIcon(Icons.bolt), findsNothing);
+    expect(find.text('Delay'), findsNothing);
   });
 
   testWidgets('switches the exact favorite group and proxy on tap', (

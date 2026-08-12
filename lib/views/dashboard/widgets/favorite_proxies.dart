@@ -3,7 +3,6 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/proxies/common.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,14 +13,13 @@ class FavoriteProxies extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final favorites = ref.watch(favoriteProxiesProvider);
-    final hasSavedFavorites = ref.watch(
+    final savedFavorites = ref.watch(
       currentProfileProvider.select(
-        (profile) => profile?.favoriteProxies.isNotEmpty ?? false,
+        (profile) => profile?.favoriteProxies ?? [],
       ),
     );
     final isInit = ref.watch(initProvider);
-    final groups = ref.watch(groupsProvider);
-    final isLoading = favorites.isEmpty && hasSavedFavorites && !isInit;
+    final isLoading = favorites.isEmpty && savedFavorites.isNotEmpty && !isInit;
     return CommonCard(
       info: Info(
         label: context.appLocalizations.favoriteProxies,
@@ -29,32 +27,36 @@ class FavoriteProxies extends ConsumerWidget {
       ),
       child: Padding(
         padding: baseInfoEdgeInsets.copyWith(top: 8),
-        child: favorites.isEmpty
-            ? isLoading
-                  ? const _FavoriteProxiesLoading()
-                  : _FavoriteProxiesEmpty(
-                      label: context.appLocalizations.favoriteProxiesEmpty,
-                    )
-            : LayoutBuilder(
-                builder: (_, constraints) {
-                  final columns = constraints.maxWidth < 480 ? 2 : 4;
-                  return Grid.baseGap(
-                    crossAxisCount: columns,
-                    children: favorites.map((favorite) {
-                      final group = groups.getGroup(favorite.groupName)!;
-                      final proxy = group.all.firstWhere(
-                        (proxy) => proxy.name == favorite.proxyName,
-                      );
-                      return _FavoriteProxyItem(
-                        favorite: favorite,
-                        proxy: proxy,
-                        testUrl: group.testUrl,
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
+        child: SizedBox(
+          height: getWidgetHeight(1),
+          child: favorites.isEmpty
+              ? isLoading
+                    ? const _FavoriteProxiesLoading()
+                    : _FavoriteProxiesEmpty(
+                        label: context.appLocalizations.favoriteProxiesEmpty,
+                      )
+              : _FavoriteProxiesRow(favorites: favorites),
+        ),
       ),
+    );
+  }
+}
+
+class _FavoriteProxiesRow extends StatelessWidget {
+  final List<FavoriteProxy> favorites;
+
+  const _FavoriteProxiesRow({required this.favorites});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (int index = 0; index < favorites.length; index++) ...[
+          if (index > 0) const SizedBox(width: 8),
+          Expanded(child: _FavoriteProxyItem(favorite: favorites[index])),
+        ],
+      ],
     );
   }
 }
@@ -64,13 +66,10 @@ class _FavoriteProxiesLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: getWidgetHeight(1) - 56,
-      child: const Center(
-        child: SizedBox.square(
-          dimension: CommonCircleLoading.defaultDimension,
-          child: CommonCircleLoading(),
-        ),
+    return const Center(
+      child: SizedBox.square(
+        dimension: CommonCircleLoading.defaultDimension,
+        child: CommonCircleLoading(),
       ),
     );
   }
@@ -83,15 +82,12 @@ class _FavoriteProxiesEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: getWidgetHeight(1) - 56,
-      child: Center(
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: context.colorScheme.onSurfaceVariant,
-          ),
+    return Center(
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: context.textTheme.bodyMedium?.copyWith(
+          color: context.colorScheme.onSurfaceVariant,
         ),
       ),
     );
@@ -100,14 +96,8 @@ class _FavoriteProxiesEmpty extends StatelessWidget {
 
 class _FavoriteProxyItem extends ConsumerWidget {
   final FavoriteProxy favorite;
-  final Proxy proxy;
-  final String? testUrl;
 
-  const _FavoriteProxyItem({
-    required this.favorite,
-    required this.proxy,
-    required this.testUrl,
-  });
+  const _FavoriteProxyItem({required this.favorite});
 
   void _handleChangeProxy() {
     final ref = globalState.container;
@@ -119,17 +109,10 @@ class _FavoriteProxyItem extends ConsumerWidget {
         .changeProxyDebounce(favorite.groupName, favorite.proxyName);
   }
 
-  void _handleDelayTest() {
-    proxyDelayTest(proxy, testUrl);
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedProxyName = ref.watch(
       selectedProxyNameProvider(favorite.groupName),
-    );
-    final delay = ref.watch(
-      delayProvider(proxyName: favorite.proxyName, testUrl: testUrl),
     );
     return CommonCard(
       type: CommonCardType.filled,
@@ -137,66 +120,16 @@ class _FavoriteProxyItem extends ConsumerWidget {
       onPressed: _handleChangeProxy,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              favorite.groupName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.textTheme.labelSmall,
-            ),
-            const SizedBox(height: 4),
-            EmojiText(
-              favorite.proxyName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.textTheme.bodyMedium?.toSoftBold,
-            ),
-            const SizedBox(height: 6),
-            _FavoriteProxyDelay(delay: delay, onPressed: _handleDelayTest),
-          ],
+        child: Center(
+          child: EmojiText(
+            favorite.proxyName,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: context.textTheme.bodyMedium?.toSoftBold,
+          ),
         ),
       ),
-    );
-  }
-}
-
-class _FavoriteProxyDelay extends StatelessWidget {
-  final int? delay;
-  final VoidCallback onPressed;
-
-  const _FavoriteProxyDelay({required this.delay, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    if (delay == 0) {
-      return SizedBox.square(
-        dimension: globalState.measure.labelSmallHeight,
-        child: const CircularProgressIndicator(strokeWidth: 2),
-      );
-    }
-    return InkWell(
-      onTap: onPressed,
-      child: delay == null
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.bolt, size: 16),
-                const SizedBox(width: 2),
-                Text(
-                  context.appLocalizations.delay,
-                  style: context.textTheme.labelSmall,
-                ),
-              ],
-            )
-          : Text(
-              delay! > 0 ? '${delay!} ms' : context.appLocalizations.timeout,
-              style: context.textTheme.labelSmall?.copyWith(
-                color: utils.getDelayColor(delay!),
-              ),
-            ),
     );
   }
 }

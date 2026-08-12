@@ -283,7 +283,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "请前往节点页面点击星标，将常用节点显示在这里。",
     ),
     "favoriteProxyLimitReached": MessageLookupByLibrary.simpleMessage(
-      "最多可收藏 8 个节点。",
+      "最多可收藏 4 个节点。",
     ),
     "fidelityScheme": MessageLookupByLibrary.simpleMessage("高保真"),
     "file": MessageLookupByLibrary.simpleMessage("文件"),

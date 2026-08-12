@@ -4514,10 +4514,10 @@ class AppLocalizations {
     );
   }
 
-  /// `You can favorite up to 8 proxies.`
+  /// `You can favorite up to 4 proxies.`
   String get favoriteProxyLimitReached {
     return Intl.message(
-      'You can favorite up to 8 proxies.',
+      'You can favorite up to 4 proxies.',
       name: 'favoriteProxyLimitReached',
       desc: '',
       args: [],

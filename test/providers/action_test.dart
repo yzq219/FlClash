@@ -59,7 +59,7 @@ void main() {
       expect(container.read(currentProfileProvider)?.favoriteProxies, [second]);
     });
 
-    test('rejects a ninth favorite', () {
+    test('rejects a fifth favorite', () {
       final favorites = List.generate(
         maxFavoriteProxies,
         (index) =>
@@ -114,6 +114,36 @@ void main() {
       );
 
       expect(container.read(currentProfileProvider)?.favoriteProxies, [valid]);
+    });
+
+    test('keeps the first four valid legacy favorites after group refresh', () {
+      final favorites = List.generate(
+        6,
+        (index) =>
+            FavoriteProxy(groupName: 'GLOBAL', proxyName: 'proxy-$index'),
+      );
+      final profile = Profile(
+        id: 1,
+        autoUpdateDuration: defaultUpdateDuration,
+        favoriteProxies: favorites,
+      );
+      final container = _buildProfilesActionContainer(profile);
+      addTearDown(container.dispose);
+
+      container.read(profilesActionProvider.notifier).reconcileFavoriteProxies([
+        Group(
+          name: 'GLOBAL',
+          type: GroupType.Selector,
+          all: favorites
+              .map((favorite) => Proxy(name: favorite.proxyName, type: 'ss'))
+              .toList(),
+        ),
+      ]);
+
+      expect(
+        container.read(currentProfileProvider)?.favoriteProxies,
+        favorites.take(maxFavoriteProxies),
+      );
     });
   });
 

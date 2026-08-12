@@ -412,7 +412,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Отметьте узлы звездой на странице прокси, чтобы они появились здесь.",
     ),
     "favoriteProxyLimitReached": MessageLookupByLibrary.simpleMessage(
-      "Можно добавить в избранное не более 8 узлов.",
+      "Можно добавить в избранное не более 4 узлов.",
     ),
     "fidelityScheme": MessageLookupByLibrary.simpleMessage("Точная передача"),
     "file": MessageLookupByLibrary.simpleMessage("Файл"),

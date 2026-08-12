@@ -871,12 +871,15 @@ class ProfilesAction extends _$ProfilesAction {
   void reconcileFavoriteProxies(List<Group> groups) {
     final currentProfile = ref.read(currentProfileProvider);
     if (currentProfile == null || groups.isEmpty) return;
-    final favoriteProxies = currentProfile.favoriteProxies.where((favorite) {
-      final group = groups.getGroup(favorite.groupName);
-      return group != null &&
-          group.type.isSelectable &&
-          group.all.any((proxy) => proxy.name == favorite.proxyName);
-    }).toList();
+    final favoriteProxies = currentProfile.favoriteProxies
+        .where((favorite) {
+          final group = groups.getGroup(favorite.groupName);
+          return group != null &&
+              group.type.isSelectable &&
+              group.all.any((proxy) => proxy.name == favorite.proxyName);
+        })
+        .take(maxFavoriteProxies)
+        .toList();
     if (favoriteProxies.length == currentProfile.favoriteProxies.length) {
       return;
     }

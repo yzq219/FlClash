@@ -399,7 +399,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Star proxies on the Proxies page to show them here.",
     ),
     "favoriteProxyLimitReached": MessageLookupByLibrary.simpleMessage(
-      "You can favorite up to 8 proxies.",
+      "You can favorite up to 4 proxies.",
     ),
     "fidelityScheme": MessageLookupByLibrary.simpleMessage("Fidelity"),
     "file": MessageLookupByLibrary.simpleMessage("File"),

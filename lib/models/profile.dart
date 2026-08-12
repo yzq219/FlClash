@@ -11,7 +11,7 @@ import 'clash_config.dart';
 part 'generated/profile.freezed.dart';
 part 'generated/profile.g.dart';
 
-const maxFavoriteProxies = 8;
+const maxFavoriteProxies = 4;
 
 @freezed
 abstract class FavoriteProxy with _$FavoriteProxy {

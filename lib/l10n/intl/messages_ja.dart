@@ -313,7 +313,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "プロキシページで星をタップすると、ここに表示されます。",
     ),
     "favoriteProxyLimitReached": MessageLookupByLibrary.simpleMessage(
-      "お気に入りは最大 8 件まで登録できます。",
+      "お気に入りは最大 4 件まで登録できます。",
     ),
     "fidelityScheme": MessageLookupByLibrary.simpleMessage("ハイファイデリティー"),
     "file": MessageLookupByLibrary.simpleMessage("ファイル"),
