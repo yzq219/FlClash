@@ -43,6 +43,48 @@ void main() {
     );
   });
 
+  testWidgets('shows loading while saved favorites wait for groups', (
+    tester,
+  ) async {
+    const profile = Profile(
+      id: 1,
+      autoUpdateDuration: defaultUpdateDuration,
+      favoriteProxies: [_favorite],
+    );
+    await tester.pumpWidget(_buildApp(profile));
+    await tester.pump();
+
+    expect(find.byType(CommonCircleLoading), findsOneWidget);
+    expect(
+      find.text('Star proxies on the Proxies page to show them here.'),
+      findsNothing,
+    );
+
+    globalState.container.read(groupsProvider.notifier).value = const [_group];
+    await tester.pump();
+
+    expect(find.byType(CommonCircleLoading), findsNothing);
+    expect(_findEmojiText('HK'), findsOneWidget);
+  });
+
+  testWidgets('shows empty state after initialization with invalid favorites', (
+    tester,
+  ) async {
+    const profile = Profile(
+      id: 1,
+      autoUpdateDuration: defaultUpdateDuration,
+      favoriteProxies: [_favorite],
+    );
+    await tester.pumpWidget(_buildApp(profile, isInit: true));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CommonCircleLoading), findsNothing);
+    expect(
+      find.text('Star proxies on the Proxies page to show them here.'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('renders favorites with two and four responsive columns', (
     tester,
   ) async {
@@ -138,6 +180,7 @@ Finder _findEmojiText(String text) {
 Widget _buildApp(
   Profile profile, {
   List<Group> groups = const [],
+  bool isInit = false,
   Widget child = const FavoriteProxies(),
 }) {
   return ProviderScope(
@@ -145,6 +188,7 @@ Widget _buildApp(
       currentProfileIdProvider.overrideWithBuild((_, _) => profile.id),
       profilesProvider.overrideWith(() => _TestProfiles([profile])),
       groupsProvider.overrideWithBuild((_, _) => groups),
+      initProvider.overrideWithBuild((_, _) => isInit),
       proxiesActionProvider.overrideWith(_TestProxiesAction.new),
     ],
     child: _TestApp(child: child),
