@@ -14,7 +14,14 @@ class FavoriteProxies extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final favorites = ref.watch(favoriteProxiesProvider);
+    final hasSavedFavorites = ref.watch(
+      currentProfileProvider.select(
+        (profile) => profile?.favoriteProxies.isNotEmpty ?? false,
+      ),
+    );
+    final isInit = ref.watch(initProvider);
     final groups = ref.watch(groupsProvider);
+    final isLoading = favorites.isEmpty && hasSavedFavorites && !isInit;
     return CommonCard(
       info: Info(
         label: context.appLocalizations.favoriteProxies,
@@ -23,9 +30,11 @@ class FavoriteProxies extends ConsumerWidget {
       child: Padding(
         padding: baseInfoEdgeInsets.copyWith(top: 8),
         child: favorites.isEmpty
-            ? _FavoriteProxiesEmpty(
-                label: context.appLocalizations.favoriteProxiesEmpty,
-              )
+            ? isLoading
+                  ? const _FavoriteProxiesLoading()
+                  : _FavoriteProxiesEmpty(
+                      label: context.appLocalizations.favoriteProxiesEmpty,
+                    )
             : LayoutBuilder(
                 builder: (_, constraints) {
                   final columns = constraints.maxWidth < 480 ? 2 : 4;
@@ -45,6 +54,23 @@ class FavoriteProxies extends ConsumerWidget {
                   );
                 },
               ),
+      ),
+    );
+  }
+}
+
+class _FavoriteProxiesLoading extends StatelessWidget {
+  const _FavoriteProxiesLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: getWidgetHeight(1) - 56,
+      child: const Center(
+        child: SizedBox.square(
+          dimension: CommonCircleLoading.defaultDimension,
+          child: CommonCircleLoading(),
+        ),
       ),
     );
   }
