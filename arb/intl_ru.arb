@@ -553,5 +553,10 @@
   "geoSkipped": "Для {name} уже установлена последняя версия",
   "geoUpdated": "{name} обновлено",
   "secondsCount": "{count} секунд",
-  "entriesCount": "{count} записей"
+  "entriesCount": "{count} записей",
+  "favoriteProxies": "Избранные узлы",
+  "favoriteProxiesEmpty": "Отметьте узлы звездой на странице прокси, чтобы они появились здесь.",
+  "favoriteProxyLimitReached": "Можно добавить в избранное не более 4 узлов.",
+  "addFavoriteProxy": "Добавить в избранное",
+  "removeFavoriteProxy": "Удалить из избранного"
 }

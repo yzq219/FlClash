@@ -105,6 +105,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "action_tun": MessageLookupByLibrary.simpleMessage("TUN"),
     "action_view": MessageLookupByLibrary.simpleMessage("Show/Hide"),
     "add": MessageLookupByLibrary.simpleMessage("Add"),
+    "addFavoriteProxy": MessageLookupByLibrary.simpleMessage(
+      "Add to favorites",
+    ),
     "addProfile": MessageLookupByLibrary.simpleMessage("Add Profile"),
     "addProxies": MessageLookupByLibrary.simpleMessage("Add proxies"),
     "addProxyGroup": MessageLookupByLibrary.simpleMessage("Add proxy group"),
@@ -395,6 +398,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "Generally use offshore DNS",
     ),
     "fallbackFilter": MessageLookupByLibrary.simpleMessage("Fallback filter"),
+    "favoriteProxies": MessageLookupByLibrary.simpleMessage("Favorite proxies"),
+    "favoriteProxiesEmpty": MessageLookupByLibrary.simpleMessage(
+      "Star proxies on the Proxies page to show them here.",
+    ),
+    "favoriteProxyLimitReached": MessageLookupByLibrary.simpleMessage(
+      "You can favorite up to 4 proxies.",
+    ),
     "fidelityScheme": MessageLookupByLibrary.simpleMessage("Fidelity"),
     "file": MessageLookupByLibrary.simpleMessage("File"),
     "fileDesc": MessageLookupByLibrary.simpleMessage("Directly upload profile"),
@@ -754,6 +764,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Remote destination",
     ),
     "remove": MessageLookupByLibrary.simpleMessage("Remove"),
+    "removeFavoriteProxy": MessageLookupByLibrary.simpleMessage(
+      "Remove from favorites",
+    ),
     "rename": MessageLookupByLibrary.simpleMessage("Rename"),
     "request": MessageLookupByLibrary.simpleMessage("Request"),
     "requests": MessageLookupByLibrary.simpleMessage("Requests"),

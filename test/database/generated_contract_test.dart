@@ -25,11 +25,14 @@ void main() {
       autoUpdate: true,
       selectedMap: const {'Select': 'DIRECT'},
       unfoldSet: const {'Select'},
+      favoriteProxies: const [
+        FavoriteProxy(groupName: 'Select', proxyName: 'DIRECT'),
+      ],
       order: 3,
     );
 
-    expect(profile.toColumns(true), hasLength(13));
-    expect(profile.toCompanion(true).toColumns(true), hasLength(13));
+    expect(profile.toColumns(true), hasLength(14));
+    expect(profile.toCompanion(true).toColumns(true), hasLength(14));
     expect(RawProfile.fromJson(profile.toJson()).toJson(), profile.toJson());
     expect(profile.copyWith(label: 'Next').label, 'Next');
     expect(
@@ -57,10 +60,11 @@ void main() {
       autoUpdate: false,
       selectedMap: {},
       unfoldSet: {},
+      favoriteProxies: [],
     );
-    expect(emptyProfile.toColumns(true), hasLength(8));
-    expect(emptyProfile.toColumns(false), hasLength(13));
-    expect(emptyProfile.toCompanion(true).toColumns(true), hasLength(8));
+    expect(emptyProfile.toColumns(true), hasLength(9));
+    expect(emptyProfile.toColumns(false), hasLength(14));
+    expect(emptyProfile.toCompanion(true).toColumns(true), hasLength(9));
 
     final insertedProfile = ProfilesCompanion.insert(
       label: 'Inserted',
@@ -87,9 +91,10 @@ void main() {
         autoUpdate: const Variable(true),
         selectedMap: const Variable('{}'),
         unfoldSet: const Variable('[]'),
+        favoriteProxies: const Variable('[]'),
         order: const Variable(1),
       ).toColumns(false),
-      hasLength(13),
+      hasLength(14),
     );
 
     final script = RawScript(id: 2, label: 'Script', lastUpdateTime: date);

@@ -553,5 +553,10 @@
   "geoSkipped": "{name} はすでに最新です",
   "geoUpdated": "{name} 更新済み",
   "secondsCount": "{count} 秒",
-  "entriesCount": "{count} エントリ"
+  "entriesCount": "{count} エントリ",
+  "favoriteProxies": "お気に入りノード",
+  "favoriteProxiesEmpty": "プロキシページで星をタップすると、ここに表示されます。",
+  "favoriteProxyLimitReached": "お気に入りは最大 4 件まで登録できます。",
+  "addFavoriteProxy": "お気に入りに追加",
+  "removeFavoriteProxy": "お気に入りから削除"
 }
