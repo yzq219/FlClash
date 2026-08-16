@@ -75,21 +75,27 @@ class ProxyCard extends StatelessWidget {
     if (type == ProxyCardType.min) {
       return SizedBox(
         height: measure.bodyMediumHeight * 1,
-        child: EmojiText(
-          proxy.name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: context.textTheme.bodyMedium,
+        child: Padding(
+          padding: EdgeInsets.only(right: groupType.isSelectable ? 32 : 0),
+          child: EmojiText(
+            proxy.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.bodyMedium,
+          ),
         ),
       );
     } else {
       return SizedBox(
         height: measure.bodyMediumHeight * 2,
-        child: EmojiText(
-          proxy.name,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: context.textTheme.bodyMedium,
+        child: Padding(
+          padding: EdgeInsets.only(right: groupType.isSelectable ? 32 : 0),
+          child: EmojiText(
+            proxy.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.bodyMedium,
+          ),
         ),
       );
     }
@@ -230,9 +236,12 @@ class _FavoriteProxyButton extends ConsumerWidget {
           : context.appLocalizations.addFavoriteProxy,
       child: SizedBox.square(
         dimension: 32,
-        child: IconButton.filledTonal(
+        child: IconButton(
           iconSize: 18,
           padding: EdgeInsets.zero,
+          color: isFavorite
+              ? context.colorScheme.primary
+              : context.colorScheme.onSurfaceVariant,
           onPressed: _handleToggleFavorite,
           icon: Icon(isFavorite ? Icons.star : Icons.star_border),
         ),

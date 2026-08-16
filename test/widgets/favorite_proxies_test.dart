@@ -212,6 +212,92 @@ void main() {
     expect((action as _TestProxiesAction).changedGroupName, isNull);
     expect(find.byIcon(Icons.star), findsOneWidget);
   });
+
+  testWidgets('long proxy names do not overlap the star touch target', (
+    tester,
+  ) async {
+    const longName =
+        'Hong Kong premium AnyTLS route with a deliberately long proxy name';
+    const profile = Profile(id: 1, autoUpdateDuration: defaultUpdateDuration);
+    for (final cardType in ProxyCardType.values) {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+      await tester.pumpWidget(
+        KeyedSubtree(
+          key: ValueKey(cardType),
+          child: _buildApp(
+            profile,
+            child: SizedBox(
+              width: 160,
+              height: 140,
+              child: ProxyCard(
+                groupName: 'GLOBAL',
+                testUrl: 'https://example.com',
+                proxy: const Proxy(name: longName, type: 'AnyTLS'),
+                groupType: GroupType.Selector,
+                type: cardType,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final nameRect = tester.getRect(_findEmojiText(longName));
+      final starButton = find.ancestor(
+        of: find.byIcon(Icons.star_border),
+        matching: find.byType(IconButton),
+      );
+      final starRect = tester.getRect(starButton);
+      final name = tester.widget<EmojiText>(_findEmojiText(longName));
+
+      expect(nameRect.right, lessThanOrEqualTo(starRect.left));
+      expect(name.maxLines, cardType == ProxyCardType.min ? 1 : 2);
+      expect(name.overflow, TextOverflow.ellipsis);
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  testWidgets('non-selectable proxies keep the full name width', (
+    tester,
+  ) async {
+    const longName =
+        'Load balance proxy with a deliberately long name for width testing';
+    const profile = Profile(id: 1, autoUpdateDuration: defaultUpdateDuration);
+
+    Future<double> pumpCard(GroupType groupType) async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+      await tester.pumpWidget(
+        KeyedSubtree(
+          key: ValueKey(groupType),
+          child: _buildApp(
+            profile,
+            child: SizedBox(
+              width: 160,
+              height: 140,
+              child: ProxyCard(
+                groupName: 'GLOBAL',
+                testUrl: 'https://example.com',
+                proxy: const Proxy(name: longName, type: 'AnyTLS'),
+                groupType: groupType,
+                type: ProxyCardType.expand,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      return tester.getSize(_findEmojiText(longName)).width;
+    }
+
+    final selectableWidth = await pumpCard(GroupType.Selector);
+    expect(find.byIcon(Icons.star_border), findsOneWidget);
+
+    final nonSelectableWidth = await pumpCard(GroupType.LoadBalance);
+    expect(find.byIcon(Icons.star_border), findsNothing);
+    expect(nonSelectableWidth, greaterThan(selectableWidth));
+  });
 }
 
 Finder _findEmojiText(String text) {
