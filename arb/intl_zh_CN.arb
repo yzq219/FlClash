@@ -283,6 +283,7 @@
   "exportFile": "导出文件",
   "cacheCorrupt": "缓存已损坏，是否清空？",
   "detectionTip": "依赖第三方api，仅供参考",
+  "openAIDetectionTip": "通过 chatgpt.com 检测 OpenAI 分流出口 IP，不发送账号凭据，仅供参考",
   "listen": "监听",
   "undo": "撤销",
   "redo": "重做",

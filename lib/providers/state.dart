@@ -488,6 +488,20 @@ VM3<bool, int, bool> checkIp(Ref ref) {
 }
 
 @riverpod
+VM4<bool, bool, int, bool> checkOpenAIIP(Ref ref) {
+  final isInit = ref.watch(initProvider);
+  final isStart = ref.watch(isStartProvider);
+  final checkIpNum = ref.watch(checkIpNumProvider);
+  final containsDetection = ref.watch(
+    dashboardStateProvider.select(
+      (state) =>
+          state.dashboardWidgets.contains(DashboardWidget.openAIDetection),
+    ),
+  );
+  return VM4(isInit, isStart, checkIpNum, containsDetection);
+}
+
+@riverpod
 ColorScheme genColorScheme(
   Ref ref,
   Brightness brightness, {

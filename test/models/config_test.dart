@@ -115,6 +115,10 @@ void main() {
     test('custom values survive round-trip', () {
       const props = AppSettingProps(
         locale: 'zh_CN',
+        dashboardWidgets: [
+          DashboardWidget.networkDetection,
+          DashboardWidget.openAIDetection,
+        ],
         onlyStatisticsProxy: true,
         autoLaunch: true,
         closeConnections: false,
@@ -126,11 +130,22 @@ void main() {
         AppSettingProps.fromJson,
       );
       expect(restored.locale, 'zh_CN');
+      expect(restored.dashboardWidgets, [
+        DashboardWidget.networkDetection,
+        DashboardWidget.openAIDetection,
+      ]);
       expect(restored.onlyStatisticsProxy, true);
       expect(restored.autoLaunch, true);
       expect(restored.closeConnections, false);
       expect(restored.testUrl, 'https://custom.test');
       expect(restored.customUserAgent, 'CustomUA/1.0');
+    });
+
+    test('OpenAI detection is optional by default', () {
+      expect(
+        const AppSettingProps().dashboardWidgets,
+        isNot(contains(DashboardWidget.openAIDetection)),
+      );
     });
 
     test('safeFromJson returns default on null', () {

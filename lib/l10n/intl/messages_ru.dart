@@ -655,6 +655,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "onlyStatisticsProxyDesc": MessageLookupByLibrary.simpleMessage(
       "При включении будет учитываться только трафик прокси",
     ),
+    "openAIDetectionTip": MessageLookupByLibrary.simpleMessage(
+      "Проверяет выходной IP OpenAI через chatgpt.com. Учетные данные не отправляются. Только для справки",
+    ),
     "optional": MessageLookupByLibrary.simpleMessage("Необязательно"),
     "options": MessageLookupByLibrary.simpleMessage("Опции"),
     "other": MessageLookupByLibrary.simpleMessage("Другое"),

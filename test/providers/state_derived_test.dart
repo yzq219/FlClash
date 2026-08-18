@@ -111,6 +111,33 @@ void main() {
     expect(actions.type, ProxiesType.tab);
   });
 
+  test('OpenAI IP checks are gated by core and widget presence', () {
+    var state = container.read(checkOpenAIIPProvider);
+    expect(state.b, false);
+    expect(state.d, false);
+
+    container
+        .read(appSettingProvider.notifier)
+        .update(
+          (value) => value.copyWith(
+            dashboardWidgets: [DashboardWidget.openAIDetection],
+          ),
+        );
+    state = container.read(checkOpenAIIPProvider);
+    expect(state.b, false);
+    expect(state.d, true);
+
+    container.read(runTimeProvider.notifier).update((_) => 1);
+    state = container.read(checkOpenAIIPProvider);
+    expect(state.b, true);
+    expect(state.d, true);
+
+    container
+        .read(appSettingProvider.notifier)
+        .update((value) => value.copyWith(dashboardWidgets: []));
+    expect(container.read(checkOpenAIIPProvider).d, false);
+  });
+
   test(
     'proxy list and tab providers filter groups and preserve selections',
     () {

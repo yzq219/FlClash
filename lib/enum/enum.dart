@@ -228,6 +228,7 @@ enum FunctionTag {
   savePreferences,
   changeProxy,
   checkIp,
+  checkOpenAIIP,
   handleWill,
   updateDelay,
   vpnTip,
@@ -251,6 +252,7 @@ enum DashboardWidget {
   outboundMode(GridItem(crossAxisCellCount: 4, child: OutboundMode())),
   trafficUsage(GridItem(crossAxisCellCount: 4, child: TrafficUsage())),
   networkDetection(GridItem(crossAxisCellCount: 4, child: NetworkDetection())),
+  openAIDetection(GridItem(crossAxisCellCount: 4, child: OpenAIDetection())),
   tunButton(
     GridItem(crossAxisCellCount: 4, child: TUNButton()),
     platforms: desktopPlatforms,

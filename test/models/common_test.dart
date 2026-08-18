@@ -236,6 +236,12 @@ void main() {
         IpInfo.fromIpAPIJson({'query': '3.3.3.3', 'countryCode': 'CN'}),
         const IpInfo(ip: '3.3.3.3', countryCode: 'CN'),
       );
+      expect(
+        IpInfo.fromCloudflareTrace(
+          'fl=123\nh=chatgpt.com\nip=2001:db8::1\nloc=jp\ntls=TLSv1.3\n',
+        ),
+        const IpInfo(ip: '2001:db8::1', countryCode: 'JP'),
+      );
     });
 
     test('throw FormatException for unsupported response shapes', () {
@@ -245,6 +251,14 @@ void main() {
       );
       expect(
         () => IpInfo.fromIpApiCoJson({'ip': '1.1.1.1'}),
+        throwsFormatException,
+      );
+      expect(
+        () => IpInfo.fromCloudflareTrace('ip=invalid\nloc=US\n'),
+        throwsFormatException,
+      );
+      expect(
+        () => IpInfo.fromCloudflareTrace('ip=1.1.1.1\n'),
         throwsFormatException,
       );
     });

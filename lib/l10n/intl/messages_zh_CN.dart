@@ -436,6 +436,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "onlyStatisticsProxyDesc": MessageLookupByLibrary.simpleMessage(
       "开启后，将只统计代理流量",
     ),
+    "openAIDetectionTip": MessageLookupByLibrary.simpleMessage(
+      "通过 chatgpt.com 检测 OpenAI 分流出口 IP，不发送账号凭据，仅供参考",
+    ),
     "optional": MessageLookupByLibrary.simpleMessage("可选"),
     "options": MessageLookupByLibrary.simpleMessage("选项"),
     "other": MessageLookupByLibrary.simpleMessage("其他"),

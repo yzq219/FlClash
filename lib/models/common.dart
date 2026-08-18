@@ -466,6 +466,26 @@ abstract class IpInfo with _$IpInfo {
   const factory IpInfo({required String ip, required String countryCode}) =
       _IpInfo;
 
+  static IpInfo fromCloudflareTrace(String trace) {
+    final values = <String, String>{};
+    for (final line in const LineSplitter().convert(trace)) {
+      final separatorIndex = line.indexOf('=');
+      if (separatorIndex <= 0) continue;
+      values[line.substring(0, separatorIndex)] = line.substring(
+        separatorIndex + 1,
+      );
+    }
+    final ip = values['ip'];
+    final countryCode = values['loc'];
+    if (ip == null ||
+        InternetAddress.tryParse(ip) == null ||
+        countryCode == null ||
+        !RegExp(r'^[A-Za-z]{2}$').hasMatch(countryCode)) {
+      throw const FormatException('invalid Cloudflare trace');
+    }
+    return IpInfo(ip: ip, countryCode: countryCode.toUpperCase());
+  }
+
   static IpInfo fromIpInfoIoJson(Map<String, dynamic> json) {
     return switch (json) {
       {'ip': final String ip, 'country': final String country} => IpInfo(

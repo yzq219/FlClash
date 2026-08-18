@@ -1761,6 +1761,60 @@ abstract class _$NetworkDetection extends $Notifier<NetworkDetectionState> {
   }
 }
 
+@ProviderFor(OpenAINetworkDetection)
+final openAINetworkDetectionProvider = OpenAINetworkDetectionProvider._();
+
+final class OpenAINetworkDetectionProvider
+    extends $NotifierProvider<OpenAINetworkDetection, NetworkDetectionState> {
+  OpenAINetworkDetectionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'openAINetworkDetectionProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$openAINetworkDetectionHash();
+
+  @$internal
+  @override
+  OpenAINetworkDetection create() => OpenAINetworkDetection();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NetworkDetectionState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NetworkDetectionState>(value),
+    );
+  }
+}
+
+String _$openAINetworkDetectionHash() =>
+    r'0c02305d0bd23e3f17155d56336bb4bdff3c2e6e';
+
+abstract class _$OpenAINetworkDetection
+    extends $Notifier<NetworkDetectionState> {
+  NetworkDetectionState build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<NetworkDetectionState, NetworkDetectionState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<NetworkDetectionState, NetworkDetectionState>,
+              NetworkDetectionState,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(CurrentSSID)
 final currentSSIDProvider = CurrentSSIDProvider._();
 

@@ -194,8 +194,25 @@ class SetupAction extends _$SetupAction {
         (state) => state.ipInfo == null && state.isLoading == false,
       ),
     );
-    if (!isTimeout) return;
-    ref.read(checkIpNumProvider.notifier).add();
+    if (isTimeout) {
+      ref.read(checkIpNumProvider.notifier).add();
+    }
+    final containsOpenAIDetection = ref.read(
+      dashboardStateProvider.select(
+        (state) =>
+            state.dashboardWidgets.contains(DashboardWidget.openAIDetection),
+      ),
+    );
+    final isOpenAITimeout = ref.read(
+      openAINetworkDetectionProvider.select(
+        (state) => state.ipInfo == null && state.isLoading == false,
+      ),
+    );
+    if (containsOpenAIDetection &&
+        ref.read(isStartProvider) &&
+        isOpenAITimeout) {
+      ref.read(openAINetworkDetectionProvider.notifier).startCheck();
+    }
   }
 
   void applyProfileDebounce({bool silence = false, bool force = false}) {

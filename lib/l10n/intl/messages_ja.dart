@@ -496,6 +496,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "onlyStatisticsProxyDesc": MessageLookupByLibrary.simpleMessage(
       "有効化するとプロキシトラフィックのみ統計",
     ),
+    "openAIDetectionTip": MessageLookupByLibrary.simpleMessage(
+      "chatgpt.com 経由で OpenAI の出口 IP を確認します。アカウント認証情報は送信されません。参考情報としてのみご利用ください",
+    ),
     "optional": MessageLookupByLibrary.simpleMessage("オプション"),
     "options": MessageLookupByLibrary.simpleMessage("オプション"),
     "other": MessageLookupByLibrary.simpleMessage("その他"),

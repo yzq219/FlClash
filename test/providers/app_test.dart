@@ -375,6 +375,88 @@ void main() {
       },
     );
   });
+
+  group('OpenAINetworkDetection provider', () {
+    late HttpClientAdapter originalAdapter;
+
+    setUp(() {
+      originalAdapter = request.clashHttpClientAdapter;
+    });
+
+    tearDown(() {
+      request.clashHttpClientAdapter = originalAdapter;
+    });
+
+    test('does not request while the core is stopped', () async {
+      final adapter = _OpenAITraceAdapter();
+      request.clashHttpClientAdapter = adapter;
+      final container = ProviderContainer(
+        overrides: [initProvider.overrideWithBuild((_, _) => true)],
+      );
+      addTearDown(container.dispose);
+
+      container.read(openAINetworkDetectionProvider.notifier).startCheck();
+      await Future.delayed(commonDuration + const Duration(milliseconds: 50));
+
+      expect(adapter.requestCount, 0);
+      expect(
+        container.read(openAINetworkDetectionProvider),
+        const NetworkDetectionState(isLoading: false, ipInfo: null),
+      );
+    });
+
+    test('uses an anonymous ChatGPT trace request and stores its IP', () async {
+      final adapter = _OpenAITraceAdapter();
+      request.clashHttpClientAdapter = adapter;
+      final container = ProviderContainer(
+        overrides: [
+          initProvider.overrideWithBuild((_, _) => true),
+          runTimeProvider.overrideWithBuild((_, _) => 1),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      container.read(openAINetworkDetectionProvider.notifier).startCheck();
+      await Future.delayed(commonDuration + const Duration(milliseconds: 80));
+
+      final state = container.read(openAINetworkDetectionProvider);
+      expect(adapter.requestCount, 1);
+      expect(adapter.lastOptions.uri.toString(), Request.openAITraceUrl);
+      expect(
+        adapter.lastOptions.headers['User-Agent'],
+        'FlClash OpenAI IP Check',
+      );
+      expect(adapter.lastOptions.headers, isNot(contains('Cookie')));
+      expect(adapter.lastOptions.headers, isNot(contains('Authorization')));
+      expect(state.ipInfo, const IpInfo(ip: '2.2.2.2', countryCode: 'US'));
+      expect(state.isLoading, false);
+    });
+
+    test('stopping cancels an active request and clears its state', () async {
+      final adapter = _OpenAITraceAdapter(holdRequest: true);
+      request.clashHttpClientAdapter = adapter;
+      final container = ProviderContainer(
+        overrides: [
+          initProvider.overrideWithBuild((_, _) => true),
+          runTimeProvider.overrideWithBuild((_, _) => 1),
+        ],
+      );
+      addTearDown(container.dispose);
+      final notifier = container.read(openAINetworkDetectionProvider.notifier);
+
+      notifier.startCheck();
+      await Future.delayed(commonDuration + const Duration(milliseconds: 50));
+      notifier.stopCheck();
+      await Future.delayed(const Duration(milliseconds: 20));
+
+      expect(adapter.requestCount, 1);
+      expect(adapter.canceled, true);
+      expect(
+        container.read(openAINetworkDetectionProvider),
+        const NetworkDetectionState(isLoading: false, ipInfo: null),
+      );
+    });
+  });
 }
 
 class _DelayedCancelIpAdapter implements HttpClientAdapter {
@@ -414,6 +496,52 @@ class _DelayedCancelIpAdapter implements HttpClientAdapter {
         200,
         headers: {
           Headers.contentTypeHeader: ['application/json'],
+        },
+      ),
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+class _OpenAITraceAdapter implements HttpClientAdapter {
+  final bool holdRequest;
+  int requestCount = 0;
+  bool canceled = false;
+  late RequestOptions lastOptions;
+
+  _OpenAITraceAdapter({this.holdRequest = false});
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) {
+    requestCount++;
+    lastOptions = options;
+    if (holdRequest) {
+      final completer = Completer<ResponseBody>();
+      cancelFuture?.then((_) {
+        canceled = true;
+        if (completer.isCompleted) return;
+        completer.completeError(
+          DioException(
+            requestOptions: options,
+            type: DioExceptionType.cancel,
+            error: 'cancelled',
+          ),
+        );
+      });
+      return completer.future;
+    }
+    return Future.value(
+      ResponseBody.fromString(
+        'fl=123\nh=chatgpt.com\nip=2.2.2.2\nloc=US\ntls=TLSv1.3\n',
+        200,
+        headers: {
+          Headers.contentTypeHeader: ['text/plain'],
         },
       ),
     );
