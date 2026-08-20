@@ -23,7 +23,8 @@ jobs:
 
       - name: Setup Flutter for OpenHarmony
         run: |
-          git clone -b oh-3.41.9-release https://gitcode.com/CPF-Flutter/flutter_flutter.git "$RUNNER_TOOL_CACHE/flutter-ohos"
+          git clone -b oh-3.41.9-release --depth 1 https://gitcode.com/CPF-Flutter/flutter_flutter.git "$RUNNER_TOOL_CACHE/flutter-ohos"
+          git -C "$RUNNER_TOOL_CACHE/flutter-ohos" tag 3.41.9
           echo "$RUNNER_TOOL_CACHE/flutter-ohos/bin" >> "$GITHUB_PATH"
           echo "$RUNNER_TOOL_CACHE/flutter-ohos/bin/cache/dart-sdk/bin" >> "$GITHUB_PATH"
           echo "PUB_CACHE=$HOME/.pub-cache" >> "$GITHUB_ENV"
