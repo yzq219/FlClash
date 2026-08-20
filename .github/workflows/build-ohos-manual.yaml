@@ -58,7 +58,7 @@ jobs:
           echo "$HOME/ohos-go/bin" >> "$GITHUB_PATH"
 
       - name: Build unsigned HAP
-        run: dart setup.dart ohos --targets hap -v
+        run: dart setup.dart ohos --targets hap --env stable -v
 
       - name: Upload unsigned HAP
         uses: actions/upload-artifact@v4
