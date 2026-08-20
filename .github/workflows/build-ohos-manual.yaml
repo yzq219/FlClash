@@ -1,0 +1,68 @@
+name: Build OpenAI IP HAP
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ohos-openai-ip-v0.8.93
+
+jobs:
+  build-hap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup OpenHarmony SDK
+        uses: ErBWs/setup-ohos@v2.0.0
+        with:
+          version: 6.1.1.280
+          cache: true
+
+      - name: Setup Flutter for OpenHarmony
+        run: |
+          git clone -b oh-3.41.9-release --depth 1 https://gitcode.com/CPF-Flutter/flutter_flutter.git "$RUNNER_TOOL_CACHE/flutter-ohos"
+          echo "$RUNNER_TOOL_CACHE/flutter-ohos/bin" >> "$GITHUB_PATH"
+          echo "$RUNNER_TOOL_CACHE/flutter-ohos/bin/cache/dart-sdk/bin" >> "$GITHUB_PATH"
+          echo "PUB_CACHE=$HOME/.pub-cache" >> "$GITHUB_ENV"
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+
+      - name: Install dependencies and generate code
+        run: |
+          flutter --version
+          flutter pub get
+          dart run intl_utils:generate
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run tests
+        run: flutter test --reporter expanded
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.0'
+          cache-dependency-path: core/go.sum
+
+      - name: Setup OpenHarmony Go
+        run: |
+          git clone -b release-branch.go1.24 --depth 1 https://gitcode.com/openharmony-sig/ohos_golang_go.git "$HOME/ohos-go"
+          cd "$HOME/ohos-go/src"
+          ./make.bash
+          echo "GOROOT=$HOME/ohos-go" >> "$GITHUB_ENV"
+          echo "$HOME/ohos-go/bin" >> "$GITHUB_PATH"
+
+      - name: Build unsigned HAP
+        run: dart setup.dart ohos --targets hap -v
+
+      - name: Upload unsigned HAP
+        uses: actions/upload-artifact@v4
+        with:
+          name: FlClash-OHOS-OpenAI-IP-unsigned
+          path: dist/*.hap
+          if-no-files-found: error
+          retention-days: 14

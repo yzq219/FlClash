@@ -435,6 +435,96 @@ class NetworkDetection extends _$NetworkDetection
 }
 
 @Riverpod(keepAlive: true)
+class OpenAINetworkDetection extends _$OpenAINetworkDetection
+    with AutoDisposeNotifierMixin {
+  static const _timeoutDisplayDelay = Duration(seconds: 2);
+
+  CancelToken? _cancelToken;
+  Timer? _timeoutTimer;
+  int _checkVersion = 0;
+
+  @override
+  NetworkDetectionState build() {
+    ref.onDispose(() {
+      debouncer.cancel(FunctionTag.checkOpenAIIP);
+      _resetCheckSession(null);
+    });
+    return const NetworkDetectionState(isLoading: false, ipInfo: null);
+  }
+
+  void startCheck() {
+    final isInit = ref.read(initProvider);
+    final isStart = ref.read(isStartProvider);
+    if (!isInit || !isStart) {
+      stopCheck();
+      return;
+    }
+    state = state.copyWith(isLoading: true, ipInfo: null);
+    debouncer.call(FunctionTag.checkOpenAIIP, () {
+      _checkIP();
+    }, duration: commonDuration);
+  }
+
+  void stopCheck() {
+    debouncer.cancel(FunctionTag.checkOpenAIIP);
+    _resetCheckSession(null);
+    state = state.copyWith(isLoading: false, ipInfo: null);
+  }
+
+  Future<void> _checkIP() async {
+    final isInit = ref.read(initProvider);
+    final isStart = ref.read(isStartProvider);
+    if (!isInit || !isStart) {
+      stopCheck();
+      return;
+    }
+    final cancelToken = CancelToken();
+    final version = _resetCheckSession(cancelToken);
+    commonPrint.log('checkOpenAIIP start');
+    state = state.copyWith(isLoading: true, ipInfo: null);
+    final res = await request.checkOpenAIIP(cancelToken: cancelToken);
+    commonPrint.log('checkOpenAIIP res: $res');
+
+    if (!ref.mounted ||
+        version != _checkVersion ||
+        cancelToken != _cancelToken) {
+      return;
+    }
+    final ipInfo = res.data;
+    if (ipInfo == null) {
+      _delayTimeoutDisplay(version);
+      return;
+    }
+    state = state.copyWith(isLoading: false, ipInfo: ipInfo);
+  }
+
+  int _resetCheckSession(CancelToken? cancelToken) {
+    _cancelTimeoutTimer();
+    final version = ++_checkVersion;
+    final previousCancelToken = _cancelToken;
+    _cancelToken = cancelToken;
+    previousCancelToken?.cancel();
+    return version;
+  }
+
+  void _delayTimeoutDisplay(int version) {
+    _cancelTimeoutTimer();
+    _timeoutTimer = Timer(_timeoutDisplayDelay, () {
+      _timeoutTimer = null;
+      if (!ref.mounted || version != _checkVersion || state.ipInfo != null) {
+        return;
+      }
+      state = state.copyWith(isLoading: false, ipInfo: null);
+    });
+  }
+
+  void _cancelTimeoutTimer() {
+    _timeoutTimer?.cancel();
+    _timeoutTimer = null;
+  }
+}
+
+@Riverpod(keepAlive: true)
 class CurrentSSID extends _$CurrentSSID with AutoDisposeNotifierMixin {
   @override
   String? build() {

@@ -246,7 +246,20 @@ class SetupAction extends _$SetupAction {
         (state) => state.ipInfo == null && state.isLoading == false,
       ),
     );
-    if (!isTimeout) return;
+    final openAIIsTimeout = ref.read(
+      openAINetworkDetectionProvider.select(
+        (state) => state.ipInfo == null && state.isLoading == false,
+      ),
+    );
+    final hasOpenAIWidget = ref.read(
+      dashboardStateProvider.select(
+        (state) =>
+            state.dashboardWidgets.contains(DashboardWidget.openAIDetection),
+      ),
+    );
+    final shouldRetryOpenAI =
+        ref.read(isStartProvider) && hasOpenAIWidget && openAIIsTimeout;
+    if (!isTimeout && !shouldRetryOpenAI) return;
     ref.read(checkIpNumProvider.notifier).add();
   }
 

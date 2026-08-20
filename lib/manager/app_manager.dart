@@ -31,6 +31,15 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
         ref.read(networkDetectionProvider.notifier).startCheck();
       }
     });
+    ref.listenManual(checkOpenAIIPProvider, (prev, next) {
+      if (prev == next) return;
+      final notifier = ref.read(openAINetworkDetectionProvider.notifier);
+      if (!next.a || !next.b || !next.d) {
+        notifier.stopCheck();
+        return;
+      }
+      notifier.startCheck();
+    });
     ref.listenManual(configProvider, (prev, next) {
       if (prev != next) {
         globalState.container

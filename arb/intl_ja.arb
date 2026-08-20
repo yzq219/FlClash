@@ -286,6 +286,7 @@
   "exportFile": "ファイルをエクスポート",
   "cacheCorrupt": "キャッシュが破損しています。クリアしますか？",
   "detectionTip": "サードパーティAPIに依存（参考値）",
+  "openAIDetectionTip": "chatgpt.com 経由で OpenAI の出口 IP を確認します。アカウント認証情報は送信されません。参考情報としてのみご利用ください",
   "listen": "リスン",
   "undo": "元に戻す",
   "redo": "やり直す",
