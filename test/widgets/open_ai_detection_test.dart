@@ -72,17 +72,36 @@ void main() {
     expect(tester.getSize(find.byType(OpenAIDetection)).height, loadingHeight);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('shows loading instead of timeout while auto-start initializes', (
+    tester,
+  ) async {
+    await _pumpDetection(
+      tester,
+      isStart: true,
+      isInit: false,
+      state: const NetworkDetectionState(isLoading: false, ipInfo: null),
+    );
+
+    expect(find.byIcon(Icons.network_check), findsOneWidget);
+    expect(find.byType(CommonCircleLoading), findsOneWidget);
+    expect(find.text('Timeout'), findsNothing);
+    expect(find.text('--'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 }
 
 Future<void> _pumpDetection(
   WidgetTester tester, {
   required bool isStart,
+  bool isInit = true,
   required NetworkDetectionState state,
 }) async {
   await tester.pumpWidget(const SizedBox.shrink());
   await tester.pump();
   final container = ProviderContainer(
     overrides: [
+      initProvider.overrideWithBuild((_, _) => isInit),
       runTimeProvider.overrideWithBuild((_, _) => isStart ? 1 : null),
       openAINetworkDetectionProvider.overrideWithValue(state),
     ],

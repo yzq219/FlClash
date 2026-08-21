@@ -11,11 +11,15 @@ class OpenAIDetection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(openAINetworkDetectionProvider);
+    final isInit = ref.watch(initProvider);
     final isStart = ref.watch(isStartProvider);
+    final displayState = isStart && !isInit
+        ? state.copyWith(isLoading: true, ipInfo: null)
+        : state;
     return IPDetectionCard(
       title: 'OpenAI',
       tip: context.appLocalizations.openAIDetectionTip,
-      state: state,
+      state: displayState,
       isConnected: isStart,
     );
   }
