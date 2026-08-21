@@ -82,6 +82,9 @@
         "reason": "$string:permission_reason_get_network_info"
       },
       {
+        "name": "ohos.permission.GET_BUNDLE_INFO"
+      },
+      {
         "name": "ohos.permission.KEEP_BACKGROUND_RUNNING",
         "reason": "$string:permission_reason_keep_background_running"
       },

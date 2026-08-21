@@ -43,7 +43,8 @@ class TrackerInfoItem extends ConsumerWidget {
     final value = ref.watch(
       patchClashConfigProvider.select(
         (state) =>
-            state.findProcessMode == FindProcessMode.always && system.isAndroid,
+            state.findProcessMode == FindProcessMode.always &&
+            (system.isAndroid || system.isOhos),
       ),
     );
     final title = Column(
@@ -124,16 +125,20 @@ class TrackerInfoItem extends ConsumerWidget {
               child: FutureBuilder<ImageProvider?>(
                 future: _getPackageIcon(trackerInfo),
                 builder: (_, snapshot) {
-                  if (!snapshot.hasData && snapshot.data == null) {
-                    return Container();
-                  } else {
+                  final image = snapshot.data;
+                  if (image != null) {
                     return Image(
-                      image: snapshot.data!,
+                      image: image,
                       gaplessPlayback: true,
                       width: 42,
                       height: 42,
                     );
                   }
+                  return Icon(
+                    Icons.apps,
+                    size: 30,
+                    color: context.colorScheme.onSurfaceVariant,
+                  );
                 },
               ),
             ),

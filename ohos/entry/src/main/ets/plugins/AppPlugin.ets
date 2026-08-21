@@ -6,6 +6,7 @@ import {
   MethodChannel,
   MethodResult,
 } from '@ohos/flutter_ohos';
+import { bundleManager } from '@kit.AbilityKit';
 import EntryAbility from '../entryability/EntryAbility';
 
 export default class AppPlugin implements FlutterPlugin, MethodCallHandler {
@@ -47,11 +48,28 @@ export default class AppPlugin implements FlutterPlugin, MethodCallHandler {
     } else if (call.method === "getChinaPackageNames") {
       result.success("[]")
     } else if (call.method === "getPackageIcon") {
-      result.success("")
+      this.handleGetPackageIcon(call, result)
     } else if (call.method === "tip") {
       result.success(true)
     } else {
       result.notImplemented()
+    }
+  }
+
+  private async handleGetPackageIcon(call: MethodCall, result: MethodResult): Promise<void> {
+    const packageName = (call.args as Map<string, string>).get('packageName')
+    if (packageName == null || packageName.length === 0) {
+      result.success("")
+      return
+    }
+    try {
+      const bundleInfo = await bundleManager.getBundleInfo(
+        packageName,
+        bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION,
+      )
+      result.success(bundleInfo.appInfo.iconData ?? "")
+    } catch (_) {
+      result.success("")
     }
   }
 }

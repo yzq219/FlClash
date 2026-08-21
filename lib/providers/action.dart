@@ -170,6 +170,7 @@ class SetupAction extends _$SetupAction {
     _updateTimer?.cancel();
     _updateTimer = null;
     ref.read(runTimeProvider.notifier).value = null;
+    ref.read(openAICheckReadyProvider.notifier).value = false;
   }
 
   Future<void> initStatus() async {
@@ -193,6 +194,7 @@ class SetupAction extends _$SetupAction {
 
   Future<void> updateStatus(bool isStart, {bool isInit = false}) async {
     if (isStart) {
+      ref.read(openAICheckReadyProvider.notifier).value = false;
       if (!isInit) {
         final res = await ref
             .read(coreActionProvider.notifier)
@@ -200,7 +202,8 @@ class SetupAction extends _$SetupAction {
         if (res) return;
         if (!ref.read(initProvider)) return;
         await _handleStart();
-        applyProfileDebounce(force: true, silence: true);
+        await applyProfile(force: true, silence: true);
+        ref.read(openAICheckReadyProvider.notifier).value = true;
       } else {
         globalState.needInitStatus = false;
         ref.read(runTimeProvider.notifier).value = 0;
@@ -211,11 +214,14 @@ class SetupAction extends _$SetupAction {
               await _handleStart();
             },
           );
+          ref.read(openAICheckReadyProvider.notifier).value = true;
         } catch (_) {
           ref.read(runTimeProvider.notifier).value = null;
+          ref.read(openAICheckReadyProvider.notifier).value = false;
         }
       }
     } else {
+      ref.read(openAICheckReadyProvider.notifier).value = false;
       await handleStop();
       coreController.resetTraffic();
       ref.read(trafficsProvider.notifier).clear();
@@ -290,7 +296,7 @@ class SetupAction extends _$SetupAction {
   Future<void> applyProfile({
     bool silence = false,
     bool force = false,
-    VoidCallback? preloadInvoke,
+    FutureOr<void> Function()? preloadInvoke,
   }) async {
     await _setupConfig(
       force: force,
@@ -562,6 +568,7 @@ class CoreAction extends _$CoreAction {
     final isDisconnected =
         ref.read(coreStatusProvider) == CoreStatus.disconnected;
     ref.read(coreStatusProvider.notifier).value = CoreStatus.disconnected;
+    ref.read(openAICheckReadyProvider.notifier).value = false;
     await coreController.shutdown(!isDisconnected);
     await connectCore();
     await initCore();

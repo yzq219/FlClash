@@ -523,6 +523,7 @@ VM3<bool, int, bool> checkIp(Ref ref) {
 VM4<bool, bool, int, bool> checkOpenAIIP(Ref ref) {
   final isInit = ref.watch(initProvider);
   final isStart = ref.watch(isStartProvider);
+  final isReady = ref.watch(openAICheckReadyProvider);
   final checkIpNum = ref.watch(checkIpNumProvider);
   final containsDetection = ref.watch(
     dashboardStateProvider.select(
@@ -530,7 +531,7 @@ VM4<bool, bool, int, bool> checkOpenAIIP(Ref ref) {
           state.dashboardWidgets.contains(DashboardWidget.openAIDetection),
     ),
   );
-  return VM4(isInit, isStart, checkIpNum, containsDetection);
+  return VM4(isInit, isStart && isReady, checkIpNum, containsDetection);
 }
 
 @riverpod

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
@@ -64,13 +65,21 @@ class App {
   }
 
   Future<ImageProvider?> getPackageIcon(String packageName) async {
-    final path = await methodChannel.invokeMethod<String>('getPackageIcon', {
+    final data = await methodChannel.invokeMethod<String>('getPackageIcon', {
       'packageName': packageName,
     });
-    if (path == null) {
+    if (data == null || data.isEmpty) {
       return null;
     }
-    return FileImage(File(path));
+    if (system.isOhos) {
+      try {
+        final encoded = data.contains(',') ? data.split(',').last : data;
+        return MemoryImage(base64Decode(encoded));
+      } catch (_) {
+        return null;
+      }
+    }
+    return FileImage(File(data));
   }
 
   Future<bool?> tip(String? message) async {

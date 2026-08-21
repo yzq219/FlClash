@@ -435,6 +435,15 @@ class NetworkDetection extends _$NetworkDetection
 }
 
 @Riverpod(keepAlive: true)
+class OpenAICheckReady extends _$OpenAICheckReady
+    with AutoDisposeNotifierMixin {
+  @override
+  bool build() {
+    return false;
+  }
+}
+
+@Riverpod(keepAlive: true)
 class OpenAINetworkDetection extends _$OpenAINetworkDetection
     with AutoDisposeNotifierMixin {
   static const _timeoutDisplayDelay = Duration(seconds: 2);
