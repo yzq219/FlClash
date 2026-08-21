@@ -7,11 +7,14 @@ import {
   MethodResult,
 } from '@ohos/flutter_ohos';
 import { bundleManager } from '@kit.AbilityKit';
+import { image } from '@kit.ImageKit';
+import { util } from '@kit.ArkTS';
 import EntryAbility from '../entryability/EntryAbility';
 
 export default class AppPlugin implements FlutterPlugin, MethodCallHandler {
   private parent: EntryAbility
   private channel: MethodChannel | undefined
+  private packageIconCache: Map<string, string> = new Map()
   private set excludeFromRecent(excluded: boolean) {
     AppStorage.setOrCreate('exclude_recent', excluded)
   }
@@ -62,12 +65,27 @@ export default class AppPlugin implements FlutterPlugin, MethodCallHandler {
       result.success("")
       return
     }
+    const cachedIcon = this.packageIconCache.get(packageName)
+    if (cachedIcon != null) {
+      result.success(cachedIcon)
+      return
+    }
     try {
       const bundleInfo = await bundleManager.getBundleInfo(
         packageName,
         bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION,
       )
-      result.success(bundleInfo.appInfo.iconData ?? "")
+      const bundleContext = this.parent.context.createBundleContext(packageName)
+      const drawableDescriptor = bundleContext.resourceManager.getDrawableDescriptor(bundleInfo.appInfo.iconId)
+      const pixelMap = drawableDescriptor.getPixelMap()
+      const imagePacker = image.createImagePacker()
+      const packedIcon = await imagePacker.packing(pixelMap, {
+        format: "image/png",
+        quality: 90,
+      })
+      const encodedIcon = new util.Base64Helper().encodeToStringSync(new Uint8Array(packedIcon))
+      this.packageIconCache.set(packageName, encodedIcon)
+      result.success(encodedIcon)
     } catch (_) {
       result.success("")
     }
