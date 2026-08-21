@@ -24,7 +24,10 @@ void main() {
     expect(find.text('OpenAI'), findsOneWidget);
     expect(find.text('🇺🇸'), findsOneWidget);
     expect(find.text('203.0.113.8'), findsOneWidget);
-    expect(tester.getSize(find.byType(OpenAIDetection)).height, getWidgetHeight(1));
+    expect(
+      tester.getSize(find.byType(OpenAIDetection)).height,
+      getWidgetHeight(1),
+    );
   });
 
   testWidgets('cold start without core shows the disconnected placeholder', (
@@ -33,6 +36,7 @@ void main() {
     await _pumpDetection(
       tester,
       isStart: false,
+      isInit: false,
       state: const NetworkDetectionState(
         isLoading: false,
         ipInfo: IpInfo(ip: '203.0.113.8', countryCode: 'US'),
@@ -43,6 +47,21 @@ void main() {
     expect(find.text('203.0.113.8'), findsNothing);
     expect(find.byType(CommonCircleLoading), findsNothing);
     expect(find.text('Timeout'), findsNothing);
+  });
+
+  testWidgets('auto start initialization shows loading instead of timeout', (
+    tester,
+  ) async {
+    await _pumpDetection(
+      tester,
+      isStart: true,
+      isInit: false,
+      state: const NetworkDetectionState(isLoading: false, ipInfo: null),
+    );
+    expect(find.byIcon(Icons.network_check), findsOneWidget);
+    expect(find.byType(CommonCircleLoading), findsOneWidget);
+    expect(find.text('Timeout'), findsNothing);
+    expect(find.text('--'), findsNothing);
   });
 
   testWidgets('loading and timeout keep the same card height', (tester) async {
@@ -67,6 +86,7 @@ void main() {
 Future<void> _pumpDetection(
   WidgetTester tester, {
   required bool isStart,
+  bool isInit = true,
   required NetworkDetectionState state,
 }) async {
   await tester.pumpWidget(const SizedBox.shrink());
@@ -74,6 +94,7 @@ Future<void> _pumpDetection(
   final container = ProviderContainer(
     overrides: [
       runTimeProvider.overrideWithBuild((_, _) => isStart ? 1 : null),
+      initProvider.overrideWithBuild((_, _) => isInit),
       openAINetworkDetectionProvider.overrideWithValue(state),
     ],
   );
