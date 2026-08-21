@@ -1,4 +1,5 @@
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/state.dart';
 import 'package:fl_clash/views/dashboard/widgets/ip_detection_card.dart';
@@ -10,8 +11,12 @@ class OpenAIDetection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(openAINetworkDetectionProvider);
+    final detectionState = ref.watch(openAINetworkDetectionProvider);
     final isStart = ref.watch(isStartProvider);
+    final isInit = ref.watch(initProvider);
+    final state = isStart && !isInit
+        ? const NetworkDetectionState(isLoading: true, ipInfo: null)
+        : detectionState;
     return IPDetectionCard(
       title: 'OpenAI',
       tip: context.appLocalizations.openAIDetectionTip,

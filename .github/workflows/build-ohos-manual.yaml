@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - ohos-openai-ip-v0.8.93
+      - fix/ohos-openai-auto-run-timeout-v0.8.93
 
 jobs:
   build-hap:
