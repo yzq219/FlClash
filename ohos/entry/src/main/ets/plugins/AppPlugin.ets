@@ -7,7 +7,6 @@ import {
   MethodResult,
 } from '@ohos/flutter_ohos';
 import { bundleManager } from '@kit.AbilityKit';
-import { image } from '@kit.ImageKit';
 import { util } from '@kit.ArkTS';
 import EntryAbility from '../entryability/EntryAbility';
 
@@ -75,15 +74,9 @@ export default class AppPlugin implements FlutterPlugin, MethodCallHandler {
         packageName,
         bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION,
       )
-      const bundleContext = this.parent.context.createBundleContext(packageName)
-      const drawableDescriptor = bundleContext.resourceManager.getDrawableDescriptor(bundleInfo.appInfo.iconId)
-      const pixelMap = drawableDescriptor.getPixelMap()
-      const imagePacker = image.createImagePacker()
-      const packedIcon = await imagePacker.packing(pixelMap, {
-        format: "image/png",
-        quality: 90,
-      })
-      const encodedIcon = new util.Base64Helper().encodeToStringSync(new Uint8Array(packedIcon))
+      const iconContent: Uint8Array =
+        await this.parent.context.resourceManager.getMediaContent(bundleInfo.appInfo.iconResource)
+      const encodedIcon: string = new util.Base64Helper().encodeToStringSync(iconContent)
       this.packageIconCache.set(packageName, encodedIcon)
       result.success(encodedIcon)
     } catch (_) {
