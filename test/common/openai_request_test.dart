@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:fl_clash/common/request.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -27,7 +28,7 @@ void main() {
 
     final result = await request.checkOpenAIIP();
 
-    expect(result.isSuccess, true);
+    expect(result.type, ResultType.success);
     expect(result.data?.ip, '203.0.113.8');
     expect(result.data?.countryCode, 'US');
     expect(adapter.lastOptions?.uri.toString(), Request.openAITraceUrl);
@@ -59,7 +60,7 @@ void main() {
     cancelToken.cancel();
 
     final result = await future;
-    expect(result.isError, true);
+    expect(result.type, ResultType.error);
     expect(result.message, 'cancelled');
   });
 
@@ -70,7 +71,7 @@ void main() {
       timeout: const Duration(milliseconds: 20),
     );
 
-    expect(result.isSuccess, true);
+    expect(result.type, ResultType.success);
     expect(result.data, isNull);
   });
 }

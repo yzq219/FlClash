@@ -67,7 +67,9 @@ void main() {
     addTearDown(container.dispose);
 
     container.read(openAINetworkDetectionProvider.notifier).startCheck();
-    await Future<void>.delayed(commonDuration + const Duration(milliseconds: 50));
+    await Future<void>.delayed(
+      commonDuration + const Duration(milliseconds: 50),
+    );
 
     final state = container.read(openAINetworkDetectionProvider);
     expect(adapter.requestCount, 0);
@@ -87,7 +89,9 @@ void main() {
     addTearDown(container.dispose);
 
     container.read(openAINetworkDetectionProvider.notifier).startCheck();
-    await Future<void>.delayed(commonDuration + const Duration(milliseconds: 80));
+    await Future<void>.delayed(
+      commonDuration + const Duration(milliseconds: 80),
+    );
 
     final state = container.read(openAINetworkDetectionProvider);
     expect(adapter.requestCount, 1);
@@ -108,7 +112,9 @@ void main() {
     final notifier = container.read(openAINetworkDetectionProvider.notifier);
 
     notifier.startCheck();
-    await Future<void>.delayed(commonDuration + const Duration(milliseconds: 50));
+    await Future<void>.delayed(
+      commonDuration + const Duration(milliseconds: 50),
+    );
     notifier.stopCheck();
     await Future<void>.delayed(const Duration(milliseconds: 20));
 
@@ -131,9 +137,13 @@ void main() {
     final notifier = container.read(openAINetworkDetectionProvider.notifier);
 
     notifier.startCheck();
-    await Future<void>.delayed(commonDuration + const Duration(milliseconds: 50));
+    await Future<void>.delayed(
+      commonDuration + const Duration(milliseconds: 50),
+    );
     notifier.startCheck();
-    await Future<void>.delayed(commonDuration + const Duration(milliseconds: 80));
+    await Future<void>.delayed(
+      commonDuration + const Duration(milliseconds: 80),
+    );
 
     expect(
       container.read(openAINetworkDetectionProvider).ipInfo?.ip,
@@ -233,9 +243,7 @@ class _SequencedAdapter implements HttpClientAdapter {
       const Duration(milliseconds: 10),
       () => ResponseBody(
         Stream.value(
-          Uint8List.fromList(
-            utf8.encode('ip=203.0.113.9\nloc=JP\n'),
-          ),
+          Uint8List.fromList(utf8.encode('ip=203.0.113.9\nloc=JP\n')),
         ),
         200,
         headers: {

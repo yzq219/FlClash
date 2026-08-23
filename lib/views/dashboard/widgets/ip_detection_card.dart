@@ -109,7 +109,10 @@ class IPDetectionCard extends StatelessWidget {
     required Color color,
   }) {
     if (ipInfo != null && isConnected) {
-      return Text(_countryCodeToEmoji(ipInfo.countryCode), style: emojiTextStyle);
+      return Text(
+        _countryCodeToEmoji(ipInfo.countryCode),
+        style: emojiTextStyle,
+      );
     }
     return Icon(Icons.network_check, color: color);
   }

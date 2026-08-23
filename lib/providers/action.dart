@@ -97,7 +97,9 @@ class CommonAction extends _$CommonAction {
       if (res == true) {
         launchUrl(
           Uri.parse('https://github.com/$repository/releases/latest'),
-          mode: Platform.isOhos ? LaunchMode.externalApplication : LaunchMode.platformDefault,
+          mode: Platform.isOhos
+              ? LaunchMode.externalApplication
+              : LaunchMode.platformDefault,
         );
       } else if (!isUser && res == false) {
         ref
@@ -498,8 +500,7 @@ class BackupAction extends _$BackupAction {
       ref.read(networkSettingProvider.notifier).value = config.networkProps;
       ref.read(hotKeyActionsProvider.notifier).value = config.hotKeyActions;
       ref.read(excludeSSIDsProvider.notifier).value = config.excludeSSIDs;
-      ref.read(definedPackagesProvider.notifier).value =
-          config.definedPackages;
+      ref.read(definedPackagesProvider.notifier).value = config.definedPackages;
       return;
     } finally {
       await restoreDir.safeDelete(recursive: true);
