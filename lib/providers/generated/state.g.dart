@@ -1866,6 +1866,53 @@ final class CheckIpProvider
 
 String _$checkIpHash() => r'7d8be66f0e8164bcf20c32659da2a4bea9893596';
 
+@ProviderFor(checkOpenAIIP)
+final checkOpenAIIPProvider = CheckOpenAIIPProvider._();
+
+final class CheckOpenAIIPProvider
+    extends
+        $FunctionalProvider<
+          VM4<bool, bool, int, bool>,
+          VM4<bool, bool, int, bool>,
+          VM4<bool, bool, int, bool>
+        >
+    with $Provider<VM4<bool, bool, int, bool>> {
+  CheckOpenAIIPProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'checkOpenAIIPProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$checkOpenAIIPHash();
+
+  @$internal
+  @override
+  $ProviderElement<VM4<bool, bool, int, bool>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  VM4<bool, bool, int, bool> create(Ref ref) {
+    return checkOpenAIIP(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(VM4<bool, bool, int, bool> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<VM4<bool, bool, int, bool>>(value),
+    );
+  }
+}
+
+String _$checkOpenAIIPHash() => r'efaf6f7fb85cfafa4b79a9a0ce025c65656bba57';
+
 @ProviderFor(genColorScheme)
 final genColorSchemeProvider = GenColorSchemeFamily._();
 

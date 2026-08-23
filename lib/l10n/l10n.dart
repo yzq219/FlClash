@@ -2204,6 +2204,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Checks the OpenAI egress IP through chatgpt.com without sending account credentials. For reference only`
+  String get openAIDetectionTip {
+    return Intl.message(
+      'Checks the OpenAI egress IP through chatgpt.com without sending account credentials. For reference only',
+      name: 'openAIDetectionTip',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Listen`
   String get listen {
     return Intl.message('Listen', name: 'listen', desc: '', args: []);

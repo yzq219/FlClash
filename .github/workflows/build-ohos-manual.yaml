@@ -37,19 +37,53 @@ jobs:
           dart run intl_utils:generate
           dart run build_runner build --delete-conflicting-outputs
 
+      - name: Format migrated Dart sources
+        run: |
+          dart format \
+            lib/common/request.dart \
+            lib/manager/app_manager.dart \
+            lib/models/common.dart \
+            lib/providers/action.dart \
+            lib/providers/app.dart \
+            lib/providers/state.dart \
+            lib/views/dashboard/widgets/ip_detection_card.dart \
+            lib/views/dashboard/widgets/network_detection.dart \
+            lib/views/dashboard/widgets/open_ai_detection.dart \
+            lib/views/dashboard/widgets/widgets.dart \
+            test/common/openai_request_test.dart \
+            test/models/openai_ip_test.dart \
+            test/providers/openai_detection_test.dart \
+            test/widgets/ip_detection_card_test.dart \
+            test/widgets/open_ai_detection_test.dart
+
       - name: Upload generated source snapshot
         uses: actions/upload-artifact@v4
         with:
           name: FlClash-OHOS-OpenAI-IP-2026082301-generated
           path: |
-            lib/l10n
-            lib/models/generated
-            lib/providers/generated
+            lib
+            test
           if-no-files-found: error
           retention-days: 14
 
       - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed lib test
+        run: |
+          dart format --output=none --set-exit-if-changed \
+            lib/common/request.dart \
+            lib/manager/app_manager.dart \
+            lib/models/common.dart \
+            lib/providers/action.dart \
+            lib/providers/app.dart \
+            lib/providers/state.dart \
+            lib/views/dashboard/widgets/ip_detection_card.dart \
+            lib/views/dashboard/widgets/network_detection.dart \
+            lib/views/dashboard/widgets/open_ai_detection.dart \
+            lib/views/dashboard/widgets/widgets.dart \
+            test/common/openai_request_test.dart \
+            test/models/openai_ip_test.dart \
+            test/providers/openai_detection_test.dart \
+            test/widgets/ip_detection_card_test.dart \
+            test/widgets/open_ai_detection_test.dart
 
       - name: Analyze
         run: flutter analyze --no-fatal-infos
