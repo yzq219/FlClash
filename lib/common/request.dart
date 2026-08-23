@@ -34,6 +34,9 @@ class Request {
     );
   }
 
+  @visibleForTesting
+  Dio get openAIClientForTesting => _clashDio;
+
   Future<Response<Uint8List>> getFileResponseForUrl(String url) async {
     try {
       return await _clashDio.get<Uint8List>(
@@ -148,7 +151,10 @@ class Request {
     return res;
   }
 
-  Future<Result<IpInfo?>> checkOpenAIIP({CancelToken? cancelToken}) async {
+  Future<Result<IpInfo?>> checkOpenAIIP({
+    CancelToken? cancelToken,
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
     final token = cancelToken ?? CancelToken();
     try {
       final response = await _clashDio
@@ -165,7 +171,7 @@ class Request {
             ),
           )
           .timeout(
-            const Duration(seconds: 10),
+            timeout,
             onTimeout: () {
               token.cancel();
               throw TimeoutException('OpenAI IP detection timed out');

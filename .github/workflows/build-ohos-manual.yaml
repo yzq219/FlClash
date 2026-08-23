@@ -4,8 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - ohos-openai-ip-v0.8.93
-      - fix/ohos-openai-auto-run-timeout-v0.8.93
+      - feat/ohos-openai-ip-2026082301
 
 jobs:
   build-hap:
@@ -25,6 +24,7 @@ jobs:
       - name: Setup Flutter for OpenHarmony
         run: |
           git clone -b oh-3.41.9-release --depth 1 https://gitcode.com/CPF-Flutter/flutter_flutter.git "$RUNNER_TOOL_CACHE/flutter-ohos"
+          git -C "$RUNNER_TOOL_CACHE/flutter-ohos" tag 3.41.10
           echo "$RUNNER_TOOL_CACHE/flutter-ohos/bin" >> "$GITHUB_PATH"
           echo "$RUNNER_TOOL_CACHE/flutter-ohos/bin/cache/dart-sdk/bin" >> "$GITHUB_PATH"
           echo "PUB_CACHE=$HOME/.pub-cache" >> "$GITHUB_ENV"
@@ -36,6 +36,20 @@ jobs:
           flutter pub get
           dart run intl_utils:generate
           dart run build_runner build --delete-conflicting-outputs
+
+      - name: Upload generated source snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: FlClash-OHOS-OpenAI-IP-2026082301-generated
+          path: |
+            lib/l10n
+            lib/models/generated
+            lib/providers/generated
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test
 
       - name: Analyze
         run: flutter analyze --no-fatal-infos
@@ -58,12 +72,12 @@ jobs:
           echo "$HOME/ohos-go/bin" >> "$GITHUB_PATH"
 
       - name: Build unsigned HAP
-        run: dart setup.dart ohos --targets hap -v
+        run: dart setup.dart ohos --targets hap --env stable -v
 
       - name: Upload unsigned HAP
         uses: actions/upload-artifact@v4
         with:
-          name: FlClash-OHOS-OpenAI-IP-unsigned
+          name: FlClash-OHOS-OpenAI-IP-2026082301-unsigned
           path: dist/*.hap
           if-no-files-found: error
           retention-days: 14

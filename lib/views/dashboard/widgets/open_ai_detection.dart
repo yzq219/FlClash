@@ -22,6 +22,9 @@ class OpenAIDetection extends ConsumerWidget {
       tip: context.appLocalizations.openAIDetectionTip,
       state: state,
       isConnected: isStart,
+      onPressed: () {
+        ref.read(openAINetworkDetectionProvider.notifier).startCheck();
+      },
     );
   }
 }
