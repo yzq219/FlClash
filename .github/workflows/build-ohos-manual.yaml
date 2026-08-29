@@ -18,13 +18,13 @@ jobs:
       - name: Setup OpenHarmony SDK
         uses: ErBWs/setup-ohos@v2.0.0
         with:
-          version: 6.1.1.280
+          version: 26.0.0.621
           cache: true
 
       - name: Setup Flutter for OpenHarmony
         run: |
-          git clone -b oh-3.41.9-release --depth 1 https://gitcode.com/CPF-Flutter/flutter_flutter.git "$RUNNER_TOOL_CACHE/flutter-ohos"
-          git -C "$RUNNER_TOOL_CACHE/flutter-ohos" tag 3.41.10
+          git clone -b 3.44.9+ohos-0.0.1-canary1 --depth 1 https://gitcode.com/CPF-Flutter/flutter_flutter.git "$RUNNER_TOOL_CACHE/flutter-ohos"
+          git -C "$RUNNER_TOOL_CACHE/flutter-ohos" tag 3.44.10
           echo "$RUNNER_TOOL_CACHE/flutter-ohos/bin" >> "$GITHUB_PATH"
           echo "$RUNNER_TOOL_CACHE/flutter-ohos/bin/cache/dart-sdk/bin" >> "$GITHUB_PATH"
           echo "PUB_CACHE=$HOME/.pub-cache" >> "$GITHUB_ENV"
@@ -94,7 +94,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24.0'
+          go-version: '1.26.4'
           cache-dependency-path: core/go.sum
 
       - name: Setup OpenHarmony Go
