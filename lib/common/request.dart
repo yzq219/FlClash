@@ -12,6 +12,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 class Request {
+  static const openAITraceUrl = 'https://chatgpt.com/cdn-cgi/trace';
+  static const _openAITraceUserAgent = 'FlClash OpenAI IP Check';
+
   late final Dio dio;
   late final Dio _clashDio;
   String? userAgent;
@@ -30,6 +33,9 @@ class Request {
       },
     );
   }
+
+  @visibleForTesting
+  Dio get openAIClientForTesting => _clashDio;
 
   Future<Response<Uint8List>> getFileResponseForUrl(String url) async {
     try {
@@ -143,6 +149,46 @@ class Request {
     final res = await Future.any(futures);
     token.cancel();
     return res;
+  }
+
+  Future<Result<IpInfo?>> checkOpenAIIP({
+    CancelToken? cancelToken,
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    final token = cancelToken ?? CancelToken();
+    try {
+      final response = await _clashDio
+          .get<String>(
+            openAITraceUrl,
+            cancelToken: token,
+            options: Options(
+              responseType: ResponseType.plain,
+              followRedirects: false,
+              headers: const {
+                HttpHeaders.userAgentHeader: _openAITraceUserAgent,
+              },
+              validateStatus: (status) => status == HttpStatus.ok,
+            ),
+          )
+          .timeout(
+            timeout,
+            onTimeout: () {
+              token.cancel();
+              throw TimeoutException('OpenAI IP detection timed out');
+            },
+          );
+      final data = response.data;
+      if (response.statusCode != HttpStatus.ok || data == null) {
+        return Result.success(null);
+      }
+      return Result.success(IpInfo.fromCloudflareTrace(data));
+    } catch (e) {
+      if (e is DioException && e.type == DioExceptionType.cancel) {
+        return Result.error('cancelled');
+      }
+      commonPrint.log('checkOpenAIIP error $e', logLevel: LogLevel.warning);
+      return Result.success(null);
+    }
   }
 
   Future<bool> pingHelper() async {
